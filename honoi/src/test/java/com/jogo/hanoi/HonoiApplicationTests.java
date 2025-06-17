@@ -1,4 +1,4 @@
-package com.jogo.honoi;
+package com.jogo.hanoi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
