@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository("/score")
 public interface PontuacaoRepository extends JpaRepository<Pontuacao, Long> {
-    @Query("SELECT s FROM Score s ORDER BY s.disks DESC, s.moves ASC, s.createdAt DESC")
+    @Query("SELECT s FROM Pontuacao s ORDER BY s.discos DESC, s.movimentos ASC, s.data DESC")
     List<Pontuacao> findTopScores();
 }

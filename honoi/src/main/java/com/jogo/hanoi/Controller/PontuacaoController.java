@@ -14,7 +14,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PontuacaoController {
 
-
         private PontuacaoService pontuacaoservice;
 
         @GetMapping

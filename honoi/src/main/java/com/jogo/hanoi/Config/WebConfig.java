@@ -3,6 +3,7 @@ package com.jogo.hanoi.Config;
 import com.jogo.hanoi.Security.AuthEntryPointJwt;
 import com.jogo.hanoi.Security.AuthTokenFilter;
 import com.jogo.hanoi.Security.UserDetailsServiceImpl;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,20 +43,30 @@ public class WebConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors().configurationSource(corsConfigurationSource()).and()
-                .csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .csrf(csrf -> csrf.disable())
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/autenticacao/**").permitAll()
                         .requestMatchers("/api/pontuacao/**").permitAll()
+                        .requestMatchers(
+                                "/api/autenticacao/**",
+                                "/api/pontuacao/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/webjars/**"
+                        ).permitAll() // liberando swagger
                         .anyRequest().authenticated()
-                );
+                )
+
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -69,13 +80,19 @@ public class WebConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Ajuste para seu frontend
-        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE"));
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true); // opcional, se for usar cookies/autenticação
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+    @Bean
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
     }
 }
